@@ -10,6 +10,9 @@ CARD_NUM = 4
 WORD_NUM = 7
 NUMBER_NUM = 9
 WORD_INDEX = 0
+WAN_INDEX = 1
+BARREL_INDEX = 2
+STICK_INDEX = 3
 KIND_OFFSET = 6
 MAX_HAND = 17
 
@@ -146,9 +149,23 @@ def hand_dimension_1to2(view_hand):
             hand[position][card_index] += 1
     return hand
 
+def bingo_tip_check(cal_hand):
+    bingo_card = list_bingo_card(cal_hand)
+    if (bingo_card != []):
+        bingo_view = []
+        for card in bingo_card:
+            if (card[0] == WORD_INDEX):
+                bingo_view.append(mj_dict[card[1]])
+            else:
+                bingo_view.append(str(card[1]+1) + mj_dict[card[0]+KIND_OFFSET])
+        print("You are so close to bingo, draw these cards for win:")
+        print(bingo_view)
+
 def start_game():
+    win_flag = 1
     while True:
-        print("Shuffles the cards...")
+        print("Single MJ practice")
+        print("System would play the card you just drew by default if you don't enter any words")
         card_pool = create_shuffled_pool()
         raw_hand = init_hand(card_pool)
         drawn_card = draw(card_pool)
@@ -156,6 +173,7 @@ def start_game():
         cal_hand = hand_dimension_1to2(raw_hand)
         view_hand = get_view_hand(cal_hand)
         print("Your hand:",view_hand)
+        bingo_tip_check(cal_hand)
         print("You have drawn:",drawn_card)
         raw_hand.append(drawn_card)
         cal_hand = hand_dimension_1to2(raw_hand)
@@ -166,36 +184,41 @@ def start_game():
                     if (card_to_play in raw_hand):
                         raw_hand.remove(card_to_play)
                         break
+                    elif (card_to_play == ''):
+                        raw_hand.remove(drawn_card)
+                        break
                     else:
                         print("You don't have this card")
+            if (card_pool == []):
+                win_flag = 0
+                break
             drawn_card = draw(card_pool)
             draw_count += 1
             cal_hand = hand_dimension_1to2(raw_hand)
             view_hand = get_view_hand(cal_hand)
             print("Your hand:", view_hand)
+            bingo_tip_check(cal_hand)
             print("You have drawn:", drawn_card)
             raw_hand.append(drawn_card)
             cal_hand = hand_dimension_1to2(raw_hand)
-        print("Bingooo! with:", drawn_card)
-        print("You have drawn",draw_count,"cards to win")
+        if (win_flag):
+            print("Bingooo! with:", drawn_card)
+            print("You have drawn",draw_count,"cards to win")
+        else:
+            print("Can't believe you've drawn all the cards and no bingo")
+            print("Are you an actor?")
         print("Play again? Y/N")
-        confirm = input()
-        while(confirm != 'Y' and confirm != 'N'):
+        confirm = input().lower()
+        while(confirm != 'y' and confirm != 'n'):
                 print("Invalid input")
-                confirm = input()
-        if (confirm == 'N'):
+                confirm = input().lower()
+        if (confirm == 'n'):
                 exit()
-        elif (confirm =='Y'):
+        elif (confirm =='y'):
                 continue
 
 if __name__ == '__main__':
     start_game()
-
-
-
-
-
-
 
 
 
